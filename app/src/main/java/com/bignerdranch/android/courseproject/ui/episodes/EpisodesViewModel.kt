@@ -10,5 +10,5 @@ class EpisodesViewModel @Inject constructor(
     private val repository: EpisodesRepository
 ) : ViewModel() {
 
-    val episodes = repository.getEpisodes()
+    fun getEpisodes() = repository.getEpisodes()
 }

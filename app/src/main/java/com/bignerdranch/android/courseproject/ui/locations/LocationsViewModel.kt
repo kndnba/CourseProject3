@@ -10,5 +10,5 @@ class LocationsViewModel @Inject constructor(
     private val repository: LocationsRepository
 ) : ViewModel() {
 
-    val locations = repository.getLocations()
+    fun getLocations() = repository.getLocations()
 }

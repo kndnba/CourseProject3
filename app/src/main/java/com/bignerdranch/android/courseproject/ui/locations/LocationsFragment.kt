@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SearchView
 import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
@@ -17,11 +18,12 @@ import com.bignerdranch.android.courseproject.utils.autoCleared
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class LocationsFragment : Fragment(), LocationsAdapter.LocationsItemListener {
+class LocationsFragment : Fragment(), LocationsAdapter.LocationsItemListener, SearchView.OnQueryTextListener {
 
     private var binding: FragmentLocationsBinding by autoCleared()
     private val viewModel: LocationsViewModel by viewModels()
     private lateinit var adapter: LocationsAdapter
+    lateinit var searchView: SearchView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,17 +37,19 @@ class LocationsFragment : Fragment(), LocationsAdapter.LocationsItemListener {
         super.onViewCreated(view, savedInstanceState)
 
         setupRecyclerView()
-        setupObservers()
+        getLocations()
     }
 
     private fun setupRecyclerView() {
+        searchView = binding.idSV
+        searchView.setOnQueryTextListener(this)
         adapter = LocationsAdapter(this)
         binding.locationsRv.layoutManager = LinearLayoutManager(requireContext())
         binding.locationsRv.adapter = adapter
     }
 
-    private fun setupObservers() {
-        viewModel.locations.observe(viewLifecycleOwner) {
+    private fun getLocations() {
+        viewModel.getLocations().observe(viewLifecycleOwner) {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     binding.progressBarLocations.visibility = View.GONE
@@ -56,7 +60,7 @@ class LocationsFragment : Fragment(), LocationsAdapter.LocationsItemListener {
                     Toast.makeText(requireContext(), it.message, Toast.LENGTH_SHORT).show()
 
                 Resource.Status.LOADING ->
-                    binding.progressBarLocations.visibility = View.VISIBLE
+                    showLoading(true)
             }
         }
     }
@@ -67,7 +71,21 @@ class LocationsFragment : Fragment(), LocationsAdapter.LocationsItemListener {
             bundleOf("id" to locationId)
         )
     }
-    fun showLoading(show: Boolean) {
+    private fun showLoading(show: Boolean) {
         binding.swipeRefreshLocations.isRefreshing = show
+    }
+
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        adapter.filter.filter(query)
+        return false
+    }
+
+    override fun onQueryTextChange(newText: String?): Boolean {
+        if (newText.isNullOrBlank()) {
+            getLocations()
+        } else {
+            adapter.filter.filter(newText)
+        }
+        return false
     }
 }

@@ -4,20 +4,26 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Filter
+import android.widget.Filterable
 import androidx.paging.PagingDataAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bignerdranch.android.courseproject.data.entities.Character
+import com.bignerdranch.android.courseproject.data.entities.CharacterList
 import com.bignerdranch.android.courseproject.databinding.ItemCharacterBinding
+import com.bignerdranch.android.courseproject.ui.locations.LocationsViewHolder
 
-class CharacterAdapter(private val listener: CharacterItemListener) : RecyclerView.Adapter<CharacterViewHolder>() {
+class CharacterAdapter(private val listener: CharacterItemListener) : RecyclerView.Adapter<CharacterViewHolder>(), Filterable {
 
     interface CharacterItemListener {
         fun onClickedCharacter(characterId: Int)
     }
 
-    private val items = ArrayList<Character>()
+    private var items = ArrayList<Character>()
+    var itemsFiltered = ArrayList<Character>()
 
     fun setItems(items: ArrayList<Character>) {
         this.items.clear()
@@ -30,9 +36,35 @@ class CharacterAdapter(private val listener: CharacterItemListener) : RecyclerVi
         return CharacterViewHolder(binding, listener)
     }
 
-    override fun getItemCount(): Int = items.size
-
     override fun onBindViewHolder(holder: CharacterViewHolder, position: Int) = holder.bind(items[position])
+
+    override fun getFilter(): Filter {
+        return object : Filter() {
+            override fun performFiltering(constraint: CharSequence?): FilterResults {
+                val charString = constraint?.toString() ?: ""
+                if (charString.isEmpty()) {
+                    itemsFiltered = items
+                } else {
+                    val filteredList = ArrayList<Character>()
+                    items
+                        .filter {
+                            it.name.contains(constraint!!, true)
+                        }
+                        .forEach { filteredList.add(it) }
+                    itemsFiltered = filteredList
+                }
+                return FilterResults().apply { values = itemsFiltered }
+            }
+
+            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+                if (results?.values != null) {
+                    setItems(results.values as ArrayList<Character>)
+                }
+            }
+        }
+    }
+
+    override fun getItemCount(): Int = items.size
 }
 
 class CharacterViewHolder(private val itemBinding: ItemCharacterBinding, private val listener: CharacterAdapter.CharacterItemListener) : RecyclerView.ViewHolder(itemBinding.root),
@@ -54,6 +86,7 @@ class CharacterViewHolder(private val itemBinding: ItemCharacterBinding, private
             .transform(CircleCrop())
             .into(itemBinding.image)
     }
+
 
     override fun onClick(v: View?) {
         listener.onClickedCharacter(character.id)

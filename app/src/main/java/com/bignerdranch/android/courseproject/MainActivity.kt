@@ -2,6 +2,7 @@ package com.bignerdranch.android.courseproject
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.SearchView
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
@@ -22,7 +23,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         val navView: BottomNavigationView = binding.navView
         hostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main) as NavHostFragment
         val navController = hostFragment.navController

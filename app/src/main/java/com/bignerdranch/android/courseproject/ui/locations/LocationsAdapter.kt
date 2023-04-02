@@ -4,17 +4,22 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Filter
+import android.widget.Filterable
 import androidx.recyclerview.widget.RecyclerView
+import com.bignerdranch.android.courseproject.data.entities.Character
 import com.bignerdranch.android.courseproject.data.entities.Locations
 import com.bignerdranch.android.courseproject.databinding.ItemLocationsBinding
 
-class LocationsAdapter(private val listener: LocationsItemListener) : RecyclerView.Adapter<LocationsViewHolder>() {
+class LocationsAdapter(private val listener: LocationsItemListener) : RecyclerView.Adapter<LocationsViewHolder>(),
+    Filterable {
 
     interface LocationsItemListener {
         fun onClickedLocation(locationId: Int)
     }
 
     private val items = ArrayList<Locations>()
+    var itemsFiltered = ArrayList<Locations>()
 
     fun setItems(items: ArrayList<Locations>) {
         this.items.clear()
@@ -30,6 +35,32 @@ class LocationsAdapter(private val listener: LocationsItemListener) : RecyclerVi
     override fun getItemCount(): Int = items.size
 
     override fun onBindViewHolder(holder: LocationsViewHolder, position: Int) = holder.bind(items[position])
+
+    override fun getFilter(): Filter {
+        return object : Filter() {
+            override fun performFiltering(constraint: CharSequence?): FilterResults {
+                val charString = constraint?.toString() ?: ""
+                if (charString.isEmpty()) {
+                    itemsFiltered = items
+                } else {
+                    val filteredList = ArrayList<Locations>()
+                    items
+                        .filter {
+                            it.name!!.contains(constraint!!, true)
+                        }
+                        .forEach { filteredList.add(it) }
+                    itemsFiltered = filteredList
+                }
+                return FilterResults().apply { values = itemsFiltered }
+            }
+
+            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+                if (results?.values != null) {
+                    setItems(results.values as ArrayList<Locations>)
+                }
+            }
+        }
+    }
 }
 
 class LocationsViewHolder(private val itemBinding: ItemLocationsBinding, private val listener: LocationsAdapter.LocationsItemListener) : RecyclerView.ViewHolder(itemBinding.root),

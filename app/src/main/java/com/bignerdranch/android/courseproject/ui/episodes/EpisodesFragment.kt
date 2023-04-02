@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SearchView
 import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
@@ -17,11 +18,12 @@ import com.bignerdranch.android.courseproject.utils.autoCleared
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class EpisodesFragment : Fragment(), EpisodesAdapter.EpisodesItemListener {
+class EpisodesFragment : Fragment(), EpisodesAdapter.EpisodesItemListener, SearchView.OnQueryTextListener {
 
     private var binding: FragmentEpisodesBinding by autoCleared()
     private val viewModel: EpisodesViewModel by viewModels()
     private lateinit var adapter: EpisodesAdapter
+    lateinit var searchView: SearchView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,19 +35,20 @@ class EpisodesFragment : Fragment(), EpisodesAdapter.EpisodesItemListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         setupRecyclerView()
-        setupObservers()
+        getEpisodes()
     }
 
     private fun setupRecyclerView() {
+        searchView = binding.idSV
+        searchView.setOnQueryTextListener(this)
         adapter = EpisodesAdapter(this)
         binding.episodesRv.layoutManager = LinearLayoutManager(requireContext())
         binding.episodesRv.adapter = adapter
     }
 
-    private fun setupObservers() {
-        viewModel.episodes.observe(viewLifecycleOwner) {
+    private fun getEpisodes() {
+        viewModel.getEpisodes().observe(viewLifecycleOwner) {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     binding.progressBarLocations.visibility = View.GONE
@@ -56,7 +59,7 @@ class EpisodesFragment : Fragment(), EpisodesAdapter.EpisodesItemListener {
                     Toast.makeText(requireContext(), it.message, Toast.LENGTH_SHORT).show()
 
                 Resource.Status.LOADING ->
-                    binding.progressBarLocations.visibility = View.VISIBLE
+                    showLoading(true)
             }
         }
     }
@@ -67,7 +70,21 @@ class EpisodesFragment : Fragment(), EpisodesAdapter.EpisodesItemListener {
             bundleOf("id" to episodeId)
         )
     }
-    fun showLoading(show: Boolean) {
+    private fun showLoading(show: Boolean) {
         binding.swipeRefreshEpisodes.isRefreshing = show
+    }
+
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        adapter.filter.filter(query)
+        return false
+    }
+
+    override fun onQueryTextChange(newText: String?): Boolean {
+        if (newText.isNullOrBlank()) {
+            getEpisodes()
+        } else {
+            adapter.filter.filter(newText)
+        }
+        return false
     }
 }

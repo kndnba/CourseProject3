@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.bignerdranch.android.courseproject.data.entities.Episodes
 
-@Database(entities = [Episodes::class], version = 5, exportSchema = false)
+@Database(entities = [Episodes::class], version = 6, exportSchema = false)
 abstract class EpisodesDatabase : RoomDatabase() {
 
     abstract fun getEpisodesDao(): EpisodesDao

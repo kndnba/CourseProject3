@@ -6,15 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
-import androidx.paging.PagingDataAdapter
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bignerdranch.android.courseproject.data.entities.Character
-import com.bignerdranch.android.courseproject.data.entities.CharacterList
 import com.bignerdranch.android.courseproject.databinding.ItemCharacterBinding
-import com.bignerdranch.android.courseproject.ui.locations.LocationsViewHolder
 
 class CharacterAdapter(private val listener: CharacterItemListener) : RecyclerView.Adapter<CharacterViewHolder>(), Filterable {
 

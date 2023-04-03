@@ -8,7 +8,6 @@ import android.widget.Filter
 import android.widget.Filterable
 import androidx.recyclerview.widget.RecyclerView
 import com.bignerdranch.android.courseproject.data.entities.Episodes
-import com.bignerdranch.android.courseproject.data.entities.Locations
 import com.bignerdranch.android.courseproject.databinding.ItemEpisodesBinding
 
 class EpisodesAdapter(private val listener: EpisodesItemListener) : RecyclerView.Adapter<EpisodesViewHolder>(), Filterable {

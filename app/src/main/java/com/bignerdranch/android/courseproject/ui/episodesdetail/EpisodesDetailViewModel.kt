@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EpisodesDetailViewModel @Inject constructor(
-    private val repository: EpisodesRepository
+    private val repository: EpisodesRepository,
 ) : ViewModel() {
 
     private val _id = MutableLiveData<Int>()
@@ -20,6 +20,7 @@ class EpisodesDetailViewModel @Inject constructor(
     private val _episode = _id.switchMap { id ->
         repository.getEpisode(id)
     }
+
     val episode: LiveData<Resource<Episodes>> = _episode
 
     fun start(id: Int) {

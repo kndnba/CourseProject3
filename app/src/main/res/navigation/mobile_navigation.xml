@@ -52,5 +52,9 @@
         android:id="@+id/episodesDetailFragment"
         android:name="com.bignerdranch.android.courseproject.ui.episodesdetail.EpisodesDetailFragment"
         android:label="Episodes Detail"
-        tools:layout="@layout/fragment_episodes_detail" />
+        tools:layout="@layout/fragment_episodes_detail" >
+        <action
+            android:id="@+id/action_episodesDetailFragment_to_characterDetailFragment"
+            app:destination="@id/characterDetailFragment" />
+    </fragment>
 </navigation>

@@ -10,5 +10,5 @@ data class Episodes(
     val id: Int,
     val air_date: String?,
     val episode: String?,
-    val created: String?
+    val created: String?,
 )

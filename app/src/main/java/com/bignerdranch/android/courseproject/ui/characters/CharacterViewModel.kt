@@ -7,8 +7,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CharacterViewModel @Inject constructor(
-    private val repository: CharacterRepository
+    private val repository: CharacterRepository,
 ) : ViewModel() {
 
-    val characters = repository.getCharacters()
+    fun getCharacters() = repository.getCharacters()
 }

@@ -1,14 +1,14 @@
 package com.bignerdranch.android.courseproject.ui.characters
 
 import androidx.lifecycle.ViewModel
-import com.bignerdranch.android.courseproject.data.repository.CharacterRepository
+import com.bignerdranch.android.courseproject.data.interactor.CharacterInteractor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class CharacterViewModel @Inject constructor(
-    private val repository: CharacterRepository,
+    private val interactor: CharacterInteractor,
 ) : ViewModel() {
 
-    fun getCharacters() = repository.getCharacters()
+    fun getCharacters(page: Int) = interactor.getCharacters(page)
 }

@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
 import androidx.recyclerview.widget.RecyclerView
-import com.bignerdranch.android.courseproject.data.entities.Character
 import com.bignerdranch.android.courseproject.data.entities.Locations
 import com.bignerdranch.android.courseproject.databinding.ItemLocationsBinding
 

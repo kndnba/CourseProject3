@@ -1,14 +1,14 @@
 package com.bignerdranch.android.courseproject.di
 
 import android.content.Context
+import com.bignerdranch.android.courseproject.data.interactor.CharacterInteractor
+import com.bignerdranch.android.courseproject.data.interactor.EpisodesInteractor
+import com.bignerdranch.android.courseproject.data.interactor.LocationsInteractor
 import com.bignerdranch.android.courseproject.data.local.*
-import com.bignerdranch.android.courseproject.data.remote.CharacterRemoteDataSource
 import com.bignerdranch.android.courseproject.data.remote.ApiService
+import com.bignerdranch.android.courseproject.data.remote.CharacterRemoteDataSource
 import com.bignerdranch.android.courseproject.data.remote.EpisodesRemoteDataSource
 import com.bignerdranch.android.courseproject.data.remote.LocationsRemoteDataSource
-import com.bignerdranch.android.courseproject.data.repository.CharacterRepository
-import com.bignerdranch.android.courseproject.data.repository.EpisodesRepository
-import com.bignerdranch.android.courseproject.data.repository.LocationsRepository
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
@@ -16,9 +16,12 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
+
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -26,9 +29,20 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideRetrofit(gson: Gson) : ApiService = Retrofit.Builder()
+    fun provideHttpClient(): OkHttpClient {
+        val interceptor = HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
+        val client = OkHttpClient.Builder()
+            .addInterceptor(interceptor)
+            .build()
+        return client
+    }
+
+    @Singleton
+    @Provides
+    fun provideRetrofit(gson: Gson, client: OkHttpClient) : ApiService = Retrofit.Builder()
         .baseUrl("https://rickandmortyapi.com/api/")
         .addConverterFactory(GsonConverterFactory.create(gson))
+        .client(client)
         .build()
         .create(ApiService::class.java)
 
@@ -54,19 +68,19 @@ object AppModule {
     @Singleton
     @Provides
     fun provideRepository(remoteDataSource: CharacterRemoteDataSource,
-                          localDataSource: CharacterDao): CharacterRepository =
-        CharacterRepository(remoteDataSource, localDataSource)
+                          localDataSource: CharacterDao): CharacterInteractor =
+        CharacterInteractor(remoteDataSource, localDataSource)
 
     @Singleton
     @Provides
     fun provideLocationsRepository(remoteDataSource: LocationsRemoteDataSource,
-                                   localDataSource: LocationsDao): LocationsRepository =
-        LocationsRepository(remoteDataSource, localDataSource)
+                                   localDataSource: LocationsDao): LocationsInteractor =
+        LocationsInteractor(remoteDataSource, localDataSource)
 
     @Singleton
     @Provides
     fun provideEpisodesRepository(remoteDataSource: EpisodesRemoteDataSource,
                                   localDataSource: EpisodesDao
-    ): EpisodesRepository =
-        EpisodesRepository(remoteDataSource, localDataSource)
+    ): EpisodesInteractor =
+        EpisodesInteractor(remoteDataSource, localDataSource)
 }

@@ -5,20 +5,20 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.switchMap
 import com.bignerdranch.android.courseproject.data.entities.Episodes
-import com.bignerdranch.android.courseproject.data.repository.EpisodesRepository
+import com.bignerdranch.android.courseproject.data.interactor.EpisodesInteractor
 import com.bignerdranch.android.courseproject.utils.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class EpisodesDetailViewModel @Inject constructor(
-    private val repository: EpisodesRepository,
+    private val interactor: EpisodesInteractor,
 ) : ViewModel() {
 
     private val _id = MutableLiveData<Int>()
 
     private val _episode = _id.switchMap { id ->
-        repository.getEpisode(id)
+        interactor.getEpisode(id)
     }
 
     val episode: LiveData<Resource<Episodes>> = _episode

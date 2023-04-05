@@ -10,11 +10,10 @@ import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bignerdranch.android.courseproject.R
-import com.bignerdranch.android.courseproject.data.entities.Character
 import com.bignerdranch.android.courseproject.databinding.FragmentCharacterBinding
 import com.bignerdranch.android.courseproject.utils.Resource
 import com.bignerdranch.android.courseproject.utils.autoCleared
@@ -27,6 +26,7 @@ class CharacterFragment : Fragment(), CharacterAdapter.CharacterItemListener, Se
     private val viewModel: CharacterViewModel by viewModels()
     private lateinit var adapter: CharacterAdapter
     lateinit var searchView: SearchView
+    var currentPage = 1
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,10 +48,22 @@ class CharacterFragment : Fragment(), CharacterAdapter.CharacterItemListener, Se
         adapter = CharacterAdapter(this)
         binding.charactersRv.layoutManager = LinearLayoutManager(requireContext())
         binding.charactersRv.adapter = adapter
+        binding.charactersRv.addOnScrollListener(object: RecyclerView.OnScrollListener(){
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                val lastVisiblePosition = layoutManager.findLastVisibleItemPosition()
+                val totalItemCount = layoutManager.itemCount
+                if (lastVisiblePosition == totalItemCount - 10){
+                    currentPage++
+                    getCharacters()
+                }
+            }
+        })
     }
 
-    private fun getCharacters() {
-        viewModel.getCharacters().observe(viewLifecycleOwner, Observer {
+    private fun getCharacters(){
+        viewModel.getCharacters(currentPage).observe(viewLifecycleOwner, Observer {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     binding.progressBar.visibility = View.GONE
@@ -75,7 +87,10 @@ class CharacterFragment : Fragment(), CharacterAdapter.CharacterItemListener, Se
         )
     }
     private fun showLoading(show: Boolean) {
-        binding.swipeRefresh.isRefreshing = show
+        binding.swipeRefresh.setOnRefreshListener {
+            binding.swipeRefresh.isRefreshing = show
+
+        }
     }
 
     override fun onQueryTextSubmit(query: String?): Boolean {

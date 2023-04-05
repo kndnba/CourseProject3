@@ -16,7 +16,6 @@ import com.bignerdranch.android.courseproject.R
 import com.bignerdranch.android.courseproject.data.entities.Episodes
 import com.bignerdranch.android.courseproject.databinding.FragmentEpisodesDetailBinding
 import com.bignerdranch.android.courseproject.ui.characters.CharacterAdapter
-import com.bignerdranch.android.courseproject.ui.episodes.EpisodesAdapter
 import com.bignerdranch.android.courseproject.utils.Resource
 import com.bignerdranch.android.courseproject.utils.autoCleared
 import dagger.hilt.android.AndroidEntryPoint

@@ -1,11 +1,12 @@
-package com.bignerdranch.android.courseproject.data.repository
+package com.bignerdranch.android.courseproject.data.interactor
 
+import com.bignerdranch.android.courseproject.data.local.CharacterDao
 import com.bignerdranch.android.courseproject.data.local.EpisodesDao
 import com.bignerdranch.android.courseproject.data.remote.EpisodesRemoteDataSource
 import com.bignerdranch.android.courseproject.utils.performGetOperation
 import javax.inject.Inject
 
-class EpisodesRepository @Inject constructor(
+class EpisodesInteractor @Inject constructor(
     private val remoteDataSource: EpisodesRemoteDataSource,
     private val localDataSource: EpisodesDao
 ) {
@@ -16,9 +17,9 @@ class EpisodesRepository @Inject constructor(
         saveCallResult = { localDataSource.insert(it) }
     )
 
-    fun getEpisodes() = performGetOperation(
+    fun getEpisodes(page: Int) = performGetOperation(
         databaseQuery = { localDataSource.getAllEpisodes() },
-        networkCall = { remoteDataSource.getEpisodes() },
+        networkCall = { remoteDataSource.getEpisodes(page) },
         saveCallResult = { localDataSource.insertAll(it.results) }
     )
 }

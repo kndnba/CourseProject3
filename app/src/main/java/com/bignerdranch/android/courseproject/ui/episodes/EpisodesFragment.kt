@@ -11,6 +11,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bignerdranch.android.courseproject.R
 import com.bignerdranch.android.courseproject.databinding.FragmentEpisodesBinding
 import com.bignerdranch.android.courseproject.utils.Resource
@@ -24,6 +25,7 @@ class EpisodesFragment : Fragment(), EpisodesAdapter.EpisodesItemListener, Searc
     private val viewModel: EpisodesViewModel by viewModels()
     private lateinit var adapter: EpisodesAdapter
     lateinit var searchView: SearchView
+    var currentPage = 1
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,10 +47,22 @@ class EpisodesFragment : Fragment(), EpisodesAdapter.EpisodesItemListener, Searc
         adapter = EpisodesAdapter(this)
         binding.episodesRv.layoutManager = LinearLayoutManager(requireContext())
         binding.episodesRv.adapter = adapter
+        binding.episodesRv.addOnScrollListener(object: RecyclerView.OnScrollListener(){
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                val lastVisiblePosition = layoutManager.findLastVisibleItemPosition()
+                val totalItemCount = layoutManager.itemCount
+                if (lastVisiblePosition == totalItemCount - 10){
+                    currentPage++
+                    getEpisodes()
+                }
+            }
+        })
     }
 
     private fun getEpisodes() {
-        viewModel.getEpisodes().observe(viewLifecycleOwner) {
+        viewModel.getEpisodes(currentPage).observe(viewLifecycleOwner) {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     binding.progressBarLocations.visibility = View.GONE
@@ -71,7 +85,10 @@ class EpisodesFragment : Fragment(), EpisodesAdapter.EpisodesItemListener, Searc
         )
     }
     private fun showLoading(show: Boolean) {
-        binding.swipeRefreshEpisodes.isRefreshing = show
+        binding.swipeRefreshEpisodes.setOnRefreshListener {
+            binding.swipeRefreshEpisodes.isRefreshing = show
+
+        }
     }
 
     override fun onQueryTextSubmit(query: String?): Boolean {

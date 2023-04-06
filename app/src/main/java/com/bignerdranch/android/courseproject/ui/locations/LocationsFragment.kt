@@ -11,6 +11,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bignerdranch.android.courseproject.R
 import com.bignerdranch.android.courseproject.databinding.FragmentLocationsBinding
 import com.bignerdranch.android.courseproject.utils.Resource
@@ -24,6 +25,7 @@ class LocationsFragment : Fragment(), LocationsAdapter.LocationsItemListener, Se
     private val viewModel: LocationsViewModel by viewModels()
     private lateinit var adapter: LocationsAdapter
     lateinit var searchView: SearchView
+    var currentPage = 1
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,10 +48,22 @@ class LocationsFragment : Fragment(), LocationsAdapter.LocationsItemListener, Se
         adapter = LocationsAdapter(this)
         binding.locationsRv.layoutManager = LinearLayoutManager(requireContext())
         binding.locationsRv.adapter = adapter
+        binding.locationsRv.addOnScrollListener(object: RecyclerView.OnScrollListener(){
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                val lastVisiblePosition = layoutManager.findLastVisibleItemPosition()
+                val totalItemCount = layoutManager.itemCount
+                if (lastVisiblePosition == totalItemCount - 10){
+                    currentPage++
+                    getLocations()
+                }
+            }
+        })
     }
 
     private fun getLocations() {
-        viewModel.getLocations().observe(viewLifecycleOwner) {
+        viewModel.getLocations(currentPage).observe(viewLifecycleOwner) {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
                     binding.progressBarLocations.visibility = View.GONE
@@ -72,7 +86,9 @@ class LocationsFragment : Fragment(), LocationsAdapter.LocationsItemListener, Se
         )
     }
     private fun showLoading(show: Boolean) {
-        binding.swipeRefreshLocations.isRefreshing = show
+        binding.swipeRefreshLocations.setOnRefreshListener {
+            binding.swipeRefreshLocations.isRefreshing = show
+        }
     }
 
     override fun onQueryTextSubmit(query: String?): Boolean {
